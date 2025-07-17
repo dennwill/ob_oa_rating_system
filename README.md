@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# OB Rating System
 
-## Getting Started
+A comprehensive employee performance internal rating and management system designed for building and facility operations. This Next.js application provides administrators with tools to evaluate employee performance, track ratings, and generate detailed reports.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Admin Dashboard
+- Real-time performance metrics and statistics
+- Top performer rankings (weekly and monthly)
+- Task completion tracking
+- Average rating calculations
+- Pending task management
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Employee Management
+- Complete employee profile management
+- Building and floor assignments
+- Performance history tracking
+- Rating analytics and trends
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+### Rating System
+- Daily room-by-room performance ratings
+- Multi-floor facility support
+- Rating history and trends
+- Bulk rating operations
+- Rating validation and quality control
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Facility Management
+- Building and floor configuration
+- Room assignment and tracking
+- Facility-specific performance metrics
+- Floor-to-employee mapping
 
-## Learn More
+### Reporting and Analytics
+- Excel export functionality for detailed reports
+- Weekly and monthly performance summaries
+- Historical data analysis
+- Performance trend visualization
 
-To learn more about Next.js, take a look at the following resources:
+### Security and Authentication
+- JWT-based authentication system
+- Role-based access control
+- Secure API endpoints
+- Session management
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Technology Stack
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Frontend**: Next.js 15, React 19, Tailwind CSS
+- **Backend**: Next.js API Routes
+- **Database**: PostgreSQL with pg driver
+- **Authentication**: JWT with bcrypt password hashing
+- **UI Components**: Radix UI, Lucide React icons
+- **Data Export**: XLSX library for Excel reports
+- **Date Handling**: date-fns library
