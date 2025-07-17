@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminLayout from '@/components/layout/AdminLayout';
 import * as XLSX from 'xlsx';
+import Image from 'next/image';
+import { Pencil, Trash2 } from 'lucide-react';
 
 function Modal({ open, onClose, children }) {
     if (!open) return null;
@@ -33,6 +35,13 @@ const AdminRatingsPage = () => {
     const [errorMsg, setErrorMsg] = useState('');
     const [facilities, setFacilities] = useState([]);
     const [pendingRoomId, setPendingRoomId] = useState(null);
+    const [showSavedPopup, setShowSavedPopup] = useState(false);
+    const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+    const [successAlertVisible, setSuccessAlertVisible] = useState(false);
+    const [showUpdateAlert, setShowUpdateAlert] = useState(false);
+    const [updateAlertVisible, setUpdateAlertVisible] = useState(false);
+    const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+    const [deleteAlertVisible, setDeleteAlertVisible] = useState(false);
 
     const fetchRatingsAndFacilities = async () => {
         setLoading(true);
@@ -60,37 +69,34 @@ const AdminRatingsPage = () => {
     // Fetch rooms when floor changes
     useEffect(() => {
         if (!selectedEmployee || !selectedFloor) {
-        setRooms([]);
-        setSelectedRoom('');
-        setPendingRoomId(null);
-        return;
-        }
-        // Find building and floor id
-        const fetchRooms = async () => {
-        setRooms([]);
-        setSelectedRoom('');
-        try {
-            const token = localStorage.getItem('token');
-            // Get all facilities, then find the building and floor
-            const res = await fetch('/api/facilities', { headers: token ? { 'Authorization': `Bearer ${token}` } : {} });
-            const data = await res.json();
-            const building = data.facilities.find(b => b.name === selectedEmployee.assignedBuilding);
-            if (!building) return;
-            const floor = building.floors.find(f => f.floorName === selectedFloor);
-            if (!floor) return;
-            setRooms(floor.rooms);
-            // If we have a pendingRoomId, set it as selectedRoom if it exists in the loaded rooms
-            if (pendingRoomId && floor.rooms.some(r => r.id === pendingRoomId || r.id === Number(pendingRoomId))) {
-                setSelectedRoom(pendingRoomId);
-            }
-            setPendingRoomId(null);
-        } catch (e) {
             setRooms([]);
+            setSelectedRoom('');
             setPendingRoomId(null);
+            return;
         }
+        const fetchRooms = async () => {
+            setRooms([]);
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch('/api/facilities', { headers: token ? { 'Authorization': `Bearer ${token}` } : {} });
+                const data = await res.json();
+                const building = data.facilities.find(b => b.name === selectedEmployee.assignedBuilding);
+                if (!building) return;
+                const floor = building.floors.find(f => f.floorName === selectedFloor);
+                if (!floor) return;
+                setRooms(floor.rooms);
+                // Only set selectedRoom if pendingRoomId is present and valid
+                if (pendingRoomId && floor.rooms.some(r => r.id === pendingRoomId || r.id === Number(pendingRoomId))) {
+                    setSelectedRoom(pendingRoomId);
+                    setPendingRoomId(null);
+                }
+            } catch (e) {
+                setRooms([]);
+                setPendingRoomId(null);
+            }
         };
         fetchRooms();
-    }, [selectedEmployee, selectedFloor]);
+    }, [selectedEmployee, selectedFloor, pendingRoomId]);
 
     // When selectedRoom changes, set the rating if it exists for today
     useEffect(() => {
@@ -153,10 +159,24 @@ const AdminRatingsPage = () => {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed to save rating');
         setSuccess(true);
+        closeModal(); // Close modal immediately
+        // Check if this is an update or a new rating
+        const emp = selectedEmployee;
+        const today = new Date().toISOString().slice(0, 10);
+        const roomObj = rooms.find(r => r.id === selectedRoom || r.id === Number(selectedRoom));
+        const existingRating = emp && roomObj && (emp.ratings || []).find(r => r.floorNumber === selectedFloor && r.roomNumber === roomObj.roomname && r.ratedAt && r.ratedAt.slice(0, 10) === today);
+        if (existingRating) {
+            setShowUpdateAlert(true);
+            setTimeout(() => setUpdateAlertVisible(true), 50);
+            setTimeout(() => setUpdateAlertVisible(false), 2500);
+            setTimeout(() => setShowUpdateAlert(false), 3000);
+        } else {
+            setShowSuccessAlert(true);
+            setTimeout(() => setSuccessAlertVisible(true), 50);
+            setTimeout(() => setSuccessAlertVisible(false), 2500);
+            setTimeout(() => setShowSuccessAlert(false), 3000);
+        }
         await fetchRatingsAndFacilities();
-        setTimeout(() => {
-            closeModal();
-        }, 1000);
         } catch (e) {
         setErrorMsg(e.message);
         } finally {
@@ -184,10 +204,12 @@ const AdminRatingsPage = () => {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed to clear rating');
         setSuccess(true);
+        closeModal();
+        setShowDeleteAlert(true);
+        setTimeout(() => setDeleteAlertVisible(true), 50);
+        setTimeout(() => setDeleteAlertVisible(false), 2500);
+        setTimeout(() => setShowDeleteAlert(false), 3000);
         await fetchRatingsAndFacilities();
-        setTimeout(() => {
-            closeModal();
-        }, 1000);
         } catch (e) {
         setErrorMsg(e.message);
         } finally {
@@ -467,6 +489,48 @@ const AdminRatingsPage = () => {
 
     return (
         <AdminLayout>
+        {showSuccessAlert && (
+            <div 
+                className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-500 ease-out ${
+                    successAlertVisible 
+                        ? 'opacity-100 translate-y-0' 
+                        : 'opacity-0 -translate-y-full'
+                }`}
+            >
+                <div className="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                    <span className="font-semibold">Ratings saved!</span>
+                </div>
+            </div>
+        )}
+        {showUpdateAlert && (
+            <div 
+                className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-500 ease-out ${
+                    updateAlertVisible 
+                        ? 'opacity-100 translate-y-0' 
+                        : 'opacity-0 -translate-y-full'
+                }`}
+            >
+                <div className="bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3">
+                    <Pencil className="w-6 h-6 text-white" />
+                    <span className="font-semibold">Ratings updated!</span>
+                </div>
+            </div>
+        )}
+        {showDeleteAlert && (
+            <div 
+                className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-500 ease-out ${
+                    deleteAlertVisible 
+                        ? 'opacity-100 translate-y-0' 
+                        : 'opacity-0 -translate-y-full'
+                }`}
+            >
+                <div className="bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3">
+                    <Trash2 className="w-6 h-6 text-white" />
+                    <span className="font-semibold">Ratings deleted!</span>
+                </div>
+            </div>
+        )}
         <div className="px-4 py-8 md:p-8">
             <div className="flex justify-end mb-4 gap-2">
                 <button
@@ -488,7 +552,7 @@ const AdminRatingsPage = () => {
                     Export (Bulan ini)
                 </button>
             </div>
-            <h2 className="text-center font-bold text-2xl">Today's Rating</h2>
+            <h2 className="text-center font-bold text-2xl">Today&apos;s Rating</h2>
             <p className="text-center mb-8 text-xs">Klik profil untuk menambah rating</p>
             <div className="flex flex-col md:flex-row md:justify-center md:gap-20 gap-6">
             {/* Group employees by company/building */}
@@ -507,9 +571,11 @@ const AdminRatingsPage = () => {
                         className="w-16 h-16 min-w-16 min-h-16 max-w-16 max-h-16 rounded-full bg-gray-200 flex items-center justify-center text-xl font-bold text-blue-700 mr-4 overflow-hidden flex-shrink-0"
                     >
                         {emp.profilePicture ? (
-                            <img
+                            <Image
                             src={emp.profilePicture}
                             alt={emp.name}
+                            width={64}
+                            height={64}
                             className="w-full h-full rounded-full object-cover block"
                             onError={e => { e.target.onerror = null; e.target.style.display = 'none'; }}
                             />

@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import AdminLayout from "@/components/layout/AdminLayout";
 import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
+import Image from 'next/image';
 
 // Custom hook for fetching employees data
 function useEmployeesData() {
@@ -149,9 +150,11 @@ export default function AdminEmployees() {
                                                 <div className="flex items-center space-x-3">
                                                     <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center overflow-hidden">
                                                         {(employee.profilePicture || employee.profile_picture) ? (
-                                                            <img
+                                                            <Image
                                                                 src={employee.profilePicture || employee.profile_picture}
                                                                 alt={employee.name}
+                                                                width={40}
+                                                                height={40}
                                                                 className="w-10 h-10 rounded-full object-cover"
                                                             />
                                                         ) : (

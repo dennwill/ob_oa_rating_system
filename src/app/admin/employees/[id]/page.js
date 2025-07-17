@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import AdminLayout from "@/components/layout/AdminLayout";
 import { useRouter, useParams } from "next/navigation";
 import { ArrowLeft, Edit, Trash2, User, Mail, Calendar, MapPin, Building } from "lucide-react";
+import Image from 'next/image';
 
 export default function EmployeeDetail() {
     const [employee, setEmployee] = useState(null);
@@ -400,9 +401,11 @@ export default function EmployeeDetail() {
                         <div className="text-center mb-6">
                             <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden">
                                 {profilePreview || employee.profilePicture || employee.profile_picture ? (
-                                    <img 
+                                    <Image 
                                         src={profilePreview || employee.profilePicture || employee.profile_picture} 
                                         alt={formData.name || employee.name}
+                                        width={96}
+                                        height={96}
                                         className="w-24 h-24 rounded-full object-cover"
                                     />
                                 ) : (

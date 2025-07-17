@@ -206,7 +206,6 @@ export default function HistoryPage() {
 
     useEffect(() => {
         fetchAllLogs();
-        // eslint-disable-next-line
     }, []);
 
     const grouped = groupLogsByDate(logs);

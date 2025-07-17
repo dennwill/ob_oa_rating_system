@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import AdminLayout from "@/components/layout/AdminLayout";
+import Image from 'next/image';
 
 export default function AddEmployeePage() {
     const router = useRouter();
@@ -386,7 +387,7 @@ export default function AddEmployeePage() {
             <div className="flex-1 flex flex-col items-center justify-start min-w-0 w-full max-w-xs mx-auto">
                 <div className="w-48 h-48 sm:w-64 sm:h-64 bg-gray-200 rounded flex items-center justify-center mb-4 overflow-hidden">
                 {profilePreview ? (
-                    <img src={profilePreview} alt="Profile Preview" className="object-cover w-full h-full" />
+                    <Image src={profilePreview} alt="Profile Preview" width={256} height={256} className="object-cover w-full h-full" />
                 ) : (
                     <svg width="120" height="120" fill="none" viewBox="0 0 120 120">
                     <circle cx="60" cy="48" r="28" fill="#A3A8AA" />
